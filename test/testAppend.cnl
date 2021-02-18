@@ -1,0 +1,79 @@
+paciente = {
+        nome : joão,
+        nome : "João da Silva Sauró",
+        cpf: 06910802403,
+        cpf: 069.108.024-03,
+        nascimento: 1986-11-86,
+        diagnostico : "INFECCIOSO COM SINTOMAS GRAVES",
+        diagnostico : IMUNIZADO,
+        comorbidades : [IDOSO, DIABETES, HIPERTENSÃO, CARDIOPATIA],
+        sinais:
+        [
+            {
+                tipo: OXIMETRIA,
+                data : "2020-12-03 14:06:55",
+                leitura: 97%
+            },
+            {
+                cpf: 010.452.754-41,
+                tipo: TEMPERATURA,
+                data : "2020-12-03 14:02:17",
+                leitura: 37.5ºC
+            }
+        ],
+        sintomas:
+        [
+            {
+                tipo: FEBRE,
+                data : "2020-12-03 14:02:17"
+            },
+            {
+                cpf: 010.452.754-41,
+                tipo: "FALTA DE AR",
+                data : "2020-12-03 14:02:17"
+            }
+        ],
+        exames :
+        [
+            {
+                tipo: "TESTE RAPIDO",
+                data : "2020-12-01 10:12:04",
+                resultado: "NÃO REAGENTE"
+            },
+            {
+                tipo: RT-PCR,
+                data : "2020-12-03 14:24:32",
+                resultado: NEGATIVO
+            },
+            {
+                cpf: 010.452.754-41,
+                tipo: SOROLOGIA,
+                data : "2020-12-28 09:14:53",
+                resultado: REAGENTE,
+                igg: 8.0,
+                igm: 0.4
+            },
+            {
+                tipo: "ANTICORPOS TOTAIS",
+                data : "2021-01-12 07:43:18",
+                resultado: POSITIVO
+            }
+        ],
+        vacinas:
+        [
+            {
+                tipo: OXFORD,
+                data : "2021-02-10 07:39:21",
+                dose: 1ª,
+                serial: 21329AS3292230A-AFF31,
+                lote: 34BC
+            },
+            {
+                tipo: ASTRA-ZENACA,
+                data : "2021-02-10 07:39:21",
+                dose: 2ª,
+                lote: 234D,
+                serial: 238409D23098DA2-23A-ZZ0A
+            }
+        ]
+    };
