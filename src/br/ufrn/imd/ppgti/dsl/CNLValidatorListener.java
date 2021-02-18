@@ -7,58 +7,15 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeProperty;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-public class CNLTranslatorListener extends CNLBaseListener {
+public class CNLValidatorListener extends CNLBaseListener {
     private Map<String, ObjectType> variables = new HashMap<String, ObjectType>();
     private ParseTreeProperty<String> values = new ParseTreeProperty<String>();
-    public void setValue(ParseTree node, String value) { values.put(node, value); }
-
-    public String getValue(ParseTree node) {
-        if(node == null)
-            return "";
-        String response = "";
-        if(values.get(node)!=null)
-            response = values.get(node);
-        else {
-            for (int i=0; i<=node.getChildCount();i++){
-                ParseTree child = node.getChild(i);
-                if(child != null) {
-                    if (child.getText().equals(",")
-                        ||  child.getText().equals("[")
-                        ||  child.getText().equals("]"))
-                        response += child.getText();
-                    else if (!(child instanceof TerminalNode))
-                        response += getValue(child);
-                }
-            }
-        }
-        return response;
-    }
-
-    @Override public void exitStart(CNLParser.StartContext ctx) {
-        String response = initResponse();
-        response += getValue(ctx);
-
-        setValue(ctx, response);
-    }
-
-    private String initResponse() {
-        String response =
-                "import json\n"
-                + "import cnl as cnl\n\r";
-        return response;
-    }
+    private  List<String> errors = new ArrayList<String>();
 
     @Override public void exitAttrib(CNLParser.AttribContext ctx) {
         String left = ctx.NOME().getText();
-        String right = getValue(ctx.obj());
-        if(right == null || right.isEmpty())
-            right = getValue(ctx.lista());
-        setValue(ctx, left + " = " + right +"\n");
         ObjectType type = ctx.lista()!=null?checkList(ctx.lista(), null):checkObj(ctx.obj(), null);
         if(ctx.lista()!=null){
             ObjectType subtype = type;
@@ -84,16 +41,13 @@ public class CNLTranslatorListener extends CNLBaseListener {
         }
         for(CNLParser.ObjContext obj:ctx.obj()) {
             if(left == null) {
-                left = getValue(obj);
                 typeLeft = checkObj(obj, temp);
                 validationMessages.addAll(temp);
             }else if(right == null){
-                right = getValue(obj);
                 typeRight = checkObj(obj, temp);
                 validationMessages.addAll(temp);
             }
         }
-        right = (right == null)?getValue(ctx.lista()):right;
         if(ctx.lista()!=null) {
             ObjectType subtype =  checkList(ctx.lista(), temp);
             if(subtype != ObjectType.INVALIDO) {
@@ -111,17 +65,12 @@ public class CNLTranslatorListener extends CNLBaseListener {
             String retorno = getErrorLine(ctx, "Objeto inválido!");
             for(String message:validationMessages)
                 retorno +=validationMessages;
-            setValue(ctx, retorno);
+            errors.add(retorno);
         }
-        String retorno = "";
-        if(typeRight == ObjectType.LISTA || variables.get(right) == ObjectType.LISTA) {
-            retorno += "cnl.checkAndAddList(" + left + ",\"" + typeRight.getSubtype().getDescription() + "\")\n";
-            retorno += left + "[\"" + typeRight.getSubtype().getDescription() + "\"].extend(" + right + ")\n";
-        }else{
-            retorno += "cnl.checkAndAddList("+left+",\""+typeRight.getDescription()+"\")\n";
-            retorno += left + "[\"" + typeRight.getDescription() + "\"].append(" + right + ")\n";
-        }
-        setValue(ctx, retorno);
+        if(typeLeft!=ObjectType.PACIENTE)
+            errors.add(getErrorLine(ctx, "só é possível utilizar concatenações (+) se o membro à esquerda for um Paciente"));
+        if(typeLeft==ObjectType.PACIENTE && typeRight == ObjectType.PACIENTE)
+            errors.add(getErrorLine(ctx, "Um paciente não pode ser concatenado (+) com outro paciente"));
     }
 
     private String getErrorLine(ParserRuleContext ctx, String error){
@@ -129,7 +78,7 @@ public class CNLTranslatorListener extends CNLBaseListener {
     }
     private String getErrorLine(ParserRuleContext ctx, String error, boolean detalhes) {
         return "\r\n[ERRO] LINHA " + ctx.start.getLine() + ": (" +
-                (ctx.getText().length() < 10 ? ctx.getText() : ctx.getText().substring(0, 10)) + "...)" + error +"\n"
+                (ctx.getText().length() < 10 ? ctx.getText() : ctx.getText().substring(0, 10)) + "...)" + " " + error +"\n"
                 + (detalhes?"[DETALHES]\n":"");
     }
 
@@ -157,19 +106,10 @@ public class CNLTranslatorListener extends CNLBaseListener {
 
     @Override public void exitMethod(CNLParser.MethodContext ctx) {
         String method = ctx.FUNCAO().getText();
-        String target = ctx.obj()!=null?getValue(ctx.obj()):ctx.NOME().getText();
-        String date = ctx.DATA()!=null?",\""+ctx.DATA().getText()+"\"":"";
-        if(date.isEmpty())
-            date = ctx.DATAHORA()!=null?","+ctx.DATAHORA().getText():"";
-        switch(method){
-            case "print":
-                method = "cnl.imprimir";
-                break;
-            default:
-                method = "cnl."+method;
-                break;
-        }
-        setValue(ctx, method + "(" + target + date + ")\n");
+        List<String> methods = Arrays.asList(new String[]{"diagnosticar", "exame", "comorbidade", "sinaisvitais",
+                "sintoma", "vacina", "print"});
+        if(!methods.contains(method))
+            errors.add(getErrorLine(ctx, method+": MÉTODO NÃO SUPORTADO."));
     }
 
     @Override public void exitObj(CNLParser.ObjContext ctx) {
@@ -179,15 +119,8 @@ public class CNLTranslatorListener extends CNLBaseListener {
             String retorno = getErrorLine(ctx, "Objeto inválido!");
             for(String message:validationMessages)
                 retorno +=validationMessages;
-            setValue(ctx, retorno);
-            return;
+            errors.add(retorno);
         }
-        if(ctx.COMORBIDADE()!=null)
-            setValue(ctx, "\""+ctx.COMORBIDADE().getText()+"\"");
-        else if (ctx instanceof CNLParser.ObjContext && ctx.getParent() instanceof CNLParser.ListaContext)
-            setValue(ctx, "{"+ getValue(ctx) +"}");
-        else
-            setValue(ctx, "json.loads(\"\"\"{"+ getValue(ctx) +"}\"\"\")");
     }
 
     /**
@@ -244,13 +177,6 @@ public class CNLTranslatorListener extends CNLBaseListener {
         return retorno;
     }
 
-    @Override public void exitPar(CNLParser.ParContext ctx) {
-        String left = "\""+ctx.getChild(0).getText()+"\"";
-        String right = (ctx.getChild(2) instanceof TerminalNode)?"\""+ctx.getChild(2).getText()+"\"":getValue(ctx.getChild(2));
-        right = right.replaceAll("\"\"", "\"");
-        setValue(ctx, left + " : " + right +"\n");
-    }
-
     @Override public void exitLista(CNLParser.ListaContext ctx) {
         List<String> validationMessages = new ArrayList<String>();
         ObjectType subtype = checkList(ctx, validationMessages);
@@ -258,18 +184,15 @@ public class CNLTranslatorListener extends CNLBaseListener {
             String retorno = getErrorLine(ctx, "Objeto inválido!");
             for(String message:validationMessages)
                 retorno +=validationMessages;
-            setValue(ctx, retorno);
-            return;
+            errors.add(retorno);
         }
-        String retorno = "[";
-        for(ParseTree child:ctx.children){
-            if(child instanceof CNLParser.ObjContext) {
-                if(!retorno.equals("["))
-                    retorno += ",";
-                retorno += getValue(child);
-            }
-        }
-        retorno += "]";
-        setValue(ctx, retorno);
+    }
+
+    public boolean isValid() {
+        return errors.isEmpty();
+    }
+
+    public List<String> getErrors(){
+        return errors;
     }
 }

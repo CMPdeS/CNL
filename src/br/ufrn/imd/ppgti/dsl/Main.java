@@ -27,9 +27,16 @@ public class Main {
             //System.out.println(tree.toStringTree(parser));
 
             ParseTreeWalker walker = new ParseTreeWalker();
-            CNLTranslatorListener eval = new CNLTranslatorListener();
+            CNLValidatorListener eval = new CNLValidatorListener();
             walker.walk(eval, tree);
-            System.out.println(eval.getValue(tree));
+            if(!eval.isValid()){
+                for(String error:eval.getErrors())
+                    System.out.println(error);
+                return;
+            }
+            CNLTranslatorListener translator = new CNLTranslatorListener();
+            walker.walk(translator, tree);
+            System.out.println(translator.getValue(tree));
         }catch (Exception e){
             e.printStackTrace();
         }

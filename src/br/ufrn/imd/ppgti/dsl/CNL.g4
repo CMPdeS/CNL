@@ -5,7 +5,6 @@ start : comando+ EOF;
 comando : NOME '=' (obj|lista) #Attrib
 | (obj|NOME) '+' (obj|NOME|lista) #Concat
 | FUNCAO (obj | NOME) (DATA|DATAHORA)? #Method
-| NOME '=' (obj|lista) ('+' (obj|lista))* #AttribConcat
 ;
 
 FUNCAO : 'diagnosticar' |  'exame' | 'comorbidade' | 'sinaisvitais' | 'sintoma' | 'vacina' | 'print';
