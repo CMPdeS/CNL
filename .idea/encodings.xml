@@ -5,6 +5,7 @@
     <file url="file://$PROJECT_DIR$/src/br/ufrn/imd/ppgti/dsl/CNLParser.java" charset="windows-1252" />
     <file url="file://$PROJECT_DIR$/test/testAppend.cnl" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/test/testAppend1.cnl" charset="ISO-8859-1" />
+    <file url="file://$PROJECT_DIR$/test/testError.cnl" charset="ISO-8859-1" />
     <file url="PROJECT" charset="windows-1252" />
   </component>
 </project>
