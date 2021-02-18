@@ -2,19 +2,23 @@
 
 ## Objetivo
 
-A CNL é uma DSL (_Domain Specific Language_) com o intuito de favorecer a interoperabilidade na notificação de casos de 
-COVID-19. Foi desenvolvida como trabalho final da disciplina **PPGTI1007    LINGUAGENS DE DOMÍNIO ESPECÍFICO    T01**, 
-do **Mestrado Profissional    Programa de Pós-graduação em Tecnologia da Informação do Instituto Metrópole Digital da 
+A CNL é uma DSL (_Domain Specific Language_) com o intuito de favorecer a interoperabilidade na notificação de casos de
+COVID-19. Foi desenvolvida como trabalho final da disciplina **PPGTI1007    LINGUAGENS DE DOMÍNIO ESPECÍFICO    T01**,
+do **Mestrado Profissional    Programa de Pós-graduação em Tecnologia da Informação do Instituto Metrópole Digital da
 Universidade Federal do Rio Grande do Norte (PPGTI-IMD/UFRN)**.
 
 ## Autores
 
-Cezar Miranda
-Denis Orozco
+Cezar Miranda (cezarmiranda@gmail.com / https://github.com/CMPdeS)  
+Denis Orozco (orozcodenis@gmail.com)
+
+## Stack e Ferramentas
+
+A CNL foi desenvolvida utilizando ANTLv4, Java 8, Python 3.9 e utilizando as IDEs IntelliJ Idea e PyCharm da JetBrains.
 
 ## Visão Geral
 
-A CNL define estruturas de dados para _**Pacientes, Sinais Vitais, Comorbidades, Sintomas, Exames e Vacinas**_. Cada 
+A CNL define estruturas de dados para _**Pacientes, Sinais Vitais, Comorbidades, Sintomas, Exames e Vacinas**_. Cada
 estrutura de dados é descrita nas seções abaixo. A sintaxe para a definição das estruturas de dados é baseada em **_JSON_**
 (_JavaScript Object Notation_).
 
@@ -110,7 +114,7 @@ Obrigatório apresentar tipo, data, dose, serial e lote.
 ## Campos de valores fixos e literais
 A lista completa das opções válidas para os campos de tipos com literais fixos pode ser vista abaixo.
 
-Como uma regra geral, onde houver espaços será necessário utilizar aspas duplas. Isto também vale para datas, nomes, 
+Como uma regra geral, onde houver espaços será necessário utilizar aspas duplas. Isto também vale para datas, nomes,
 etc.
 
 Comorbidades :
@@ -297,5 +301,181 @@ entanto campos repetidos não serão aceitos).
         ]
     }
 
-### Programa Completo
+## Programa Completo
 
+### Entrada de exemplo
+
+
+    paciente = {nome : "Joao da Silva Biro", cpf: 01045275441, nascimento: 1979-07-12, comorbidades: [IDOSO, DIABETES, CARDIOPATIA]  
+    ,  
+            vacinas:  
+            [  
+                {  
+                    tipo: ASTRA-ZENACA,  
+                    data : "2021-02-10 07:39:21",  
+                    dose: 2,  
+                    lote: 234D,  
+                    serial: 238409D23098DA2-23A-ZZ0A  
+                }  
+            ],  
+    sinais:  
+            [  
+                {  
+                    tipo: OXIMETRIA,  
+                    data : "2020-12-05 14:06:55",  
+                    leitura: 97%  
+                },  
+                {  
+                    cpf: 010.452.754-41,  
+                    tipo: TEMPERATURA,  
+                    data : "2020-12-03 14:02:17",  
+                    leitura: 41.5C  
+                },  
+                {  
+                    cpf: 010.452.754-41,  
+                    tipo: TEMPERATURA,  
+                    data : "2021-02-03 14:02:17",  
+                    leitura: 35.8C  
+                }  
+            ],  
+    exames :  
+            [  
+             {  
+                 tipo: "TESTE RAPIDO",  
+                 data : "2020-12-01 10:12:04",  
+                 resultado: "NAO REAGENTE"  
+             },  
+             {  
+                 tipo: "ANTICORPOS TOTAIS",  
+                 data : "2020-12-12 07:43:18",  
+                 resultado: POSITIVO  
+             }  
+            ]}  
+    paciente + [NEOPLASIA, NEFROPATIA]  
+    paciente + PNEUMOPATIA  
+    paciente + NEUROPATIA  
+    paciente + {  
+                   tipo: OXFORD,  
+                   data : "2021-02-10 07:39:21",  
+                   dose: 1,  
+                   serial: 21329AS3292230A-AFF31,  
+                   lote: 34BC  
+               }  
+    examList =  [{  
+                    tipo: RT-PCR,  
+                    data : "2020-12-03 14:24:32",  
+                    resultado: NEGATIVO  
+                },  
+                {  
+                    cpf: 010.452.754-41,  
+                    tipo: SOROLOGIA,  
+                    data : "2020-12-28 09:14:53",  
+                    resultado: REAGENTE,  
+                    igg: 8.0,  
+                    igm: 0.4  
+                }]  
+    paciente + examList  
+    sintomList = [  
+                     {  
+                         tipo: FEBRE,  
+                         data : "2020-12-08 10:15:41"  
+                     },  
+                     {  
+                         cpf: 010.452.754-41,  
+                         tipo: "FALTA DE AR",  
+                         data : "2020-12-03 14:02:17"  
+                     }  
+                 ]  
+    paciente + sintomList  
+    print paciente  
+    diagnosticar paciente "2020-12-15 10:30:22"
+
+### Saída Esperada
+
+    ------------------------------------------------------------
+    Paciente: Joao da Silva Biro
+    CPF: 010.452.754-41
+    Data de Nascimento: 12/07/1979
+    ------------
+    Comorbidades
+    ------------
+    IDOSO
+    DIABETES
+    CARDIOPATIA
+    NEOPLASIA
+    NEFROPATIA
+    PNEUMOPATIA
+    NEUROPATIA
+    -------------
+    Sinais Vitais
+    -------------
+    CPF: 010.452.754-41
+    Tipo: TEMPERATURA
+    Data: 03/12/2020 14:02:17
+    leitura: 41.5C
+    -------------
+    Tipo: OXIMETRIA
+    Data: 05/12/2020 14:06:55
+    leitura: 97%
+    -------------
+    CPF: 010.452.754-41
+    Tipo: TEMPERATURA
+    Data: 03/02/2021 14:02:17
+    leitura: 35.8C
+    --------
+    Sintomas
+    --------
+    CPF: 010.452.754-41
+    Tipo: FALTA DE AR
+    Data: 03/12/2020 14:02:17
+    -------------
+    Tipo: FEBRE
+    Data: 08/12/2020 10:15:41
+    ------
+    Exames
+    ------
+    Tipo: TESTE RAPIDO
+    Data: 01/12/2020 10:12:04
+    resultado: NAO REAGENTE
+    -------------
+    Tipo: RT-PCR
+    Data: 03/12/2020 14:24:32
+    resultado: NEGATIVO
+    -------------
+    Tipo: ANTICORPOS TOTAIS
+    Data: 12/12/2020 07:43:18
+    resultado: POSITIVO
+    -------------
+    CPF: 010.452.754-41
+    Tipo: SOROLOGIA
+    Data: 28/12/2020 09:14:53
+    resultado: REAGENTE
+    IgG: 8.0
+    IgM: 0.4
+    -------
+    vacinas
+    -------
+    Tipo: ASTRA-ZENACA
+    Data: 10/02/2021 07:39:21
+    dose: 2
+    serial: 238409D23098DA2-23A-ZZ0A
+    lote: 234D
+    -------------
+    Tipo: OXFORD
+    Data: 10/02/2021 07:39:21
+    dose: 1
+    serial: 21329AS3292230A-AFF31
+    lote: 34BC
+    --------------------------------------------------
+    Paciente: Joao da Silva Biro
+    CPF: 010.452.754-41
+    Diagnóstico: INFECCIOSO EM 12/12/2020 07:43:18
+    --------------
+    Dados do Exame
+    --------------
+    Tipo: ANTICORPOS TOTAIS
+    resultado: POSITIVO
+    
+    OXIMETRIA 97%
+    TEMPERATURA 41.5C (HIPERTERMIA)
+    Estado Geral: GRAVÍSSIMO
