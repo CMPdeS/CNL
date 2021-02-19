@@ -200,7 +200,6 @@ Diagnósticos:
 O programa irá reconhecer as seguintes operações:
 
     [variavel] = obj //atribui um paciente, sintoma, sinal, exame, vacina, comorbidade a uma variável
-    paciente + paciente //atualiza os dados do paciente, o da direita sobrescreve o da esquerda
     paciente + exame //acumula os exames na lista de exames do paciente
     paciente + sinal //acumula o sinal vital na lista de sinais do paciente
     paciente + comorbidade //acumula a comorbidade na lista de comorbidades do paciente
@@ -213,6 +212,12 @@ O programa irá reconhecer as seguintes operações:
     sinaisvitais paciente [data] //imprime apenas os sinais do paciente até a data limite opcional
     vacina paciente [data] //imprime apenas as vacinas do paciente até a data limite opcional
     exame paciente [data] //imprime apenas os exames do paciente até a data limite opcional
+
+## Problemas conhecidos e Limitações
+
+Não está sendo possível utilizar caracteres acentuados nem sinais fora da tabela ASCII como ª e º.
+Não está sendo feito nenhuma restrição quanto ao CPF do paciente e o CPF nos dados temporais serem diferentes
+(sinais vitais, exames, vacinas).
 
 ## Exemplos
 
