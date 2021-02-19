@@ -11,12 +11,11 @@ import java.util.*;
 
 public class CNLValidatorListener extends CNLBaseListener {
     private Map<String, ObjectType> variables = new HashMap<String, ObjectType>();
-    private ParseTreeProperty<String> values = new ParseTreeProperty<String>();
     private  List<String> errors = new ArrayList<String>();
 
     @Override public void exitAttrib(CNLParser.AttribContext ctx) {
         String left = ctx.NOME().getText();
-        ObjectType type = ctx.lista()!=null?checkList(ctx.lista(), null):checkObj(ctx.obj(), null);
+        ObjectType type = ctx.lista()!=null?checkList(ctx.lista(), new ArrayList<String>()):checkObj(ctx.obj(), null);
         if(ctx.lista()!=null){
             ObjectType subtype = type;
             type = ObjectType.LISTA;
@@ -64,7 +63,7 @@ public class CNLValidatorListener extends CNLBaseListener {
         if(typeLeft == ObjectType.INVALIDO || typeRight == ObjectType.INVALIDO) {
             String retorno = getErrorLine(ctx, "Objeto inválido!");
             for(String message:validationMessages)
-                retorno +=validationMessages;
+                retorno +=message;
             errors.add(retorno);
         }
         if(typeLeft!=ObjectType.PACIENTE)
@@ -83,7 +82,7 @@ public class CNLValidatorListener extends CNLBaseListener {
     }
 
     private ObjectType checkList(CNLParser.ListaContext lista, List<String> validationMessages) {
-        validationMessages = new ArrayList<String>();
+        //validationMessages = new ArrayList<String>();
         List<String> tmp = new ArrayList<String>();
         ObjectType current = null, last = null;
         for(ParseTree elem:lista.children){
@@ -118,7 +117,7 @@ public class CNLValidatorListener extends CNLBaseListener {
         if(type == ObjectType.INVALIDO) {
             String retorno = getErrorLine(ctx, "Objeto inválido!");
             for(String message:validationMessages)
-                retorno +=validationMessages;
+                retorno +=message;
             errors.add(retorno);
         }
     }
@@ -130,7 +129,7 @@ public class CNLValidatorListener extends CNLBaseListener {
     private ObjectType checkObj(CNLParser.ObjContext ctx, List<String> validationMessages) {
         ObjectType retorno = ObjectType.INVALIDO;
         Map<String, Integer> controle = new HashMap<String, Integer>();
-        validationMessages = new ArrayList<String>();
+        //validationMessages = new ArrayList<String>();
         Integer count = null;
         boolean isPaciente, isExame, isSintoma, isSinal, isVacina, isComorbidade, hasIgg, hasIgm, isSorologia=false;
         for(ParseTree par:ctx.children) {
@@ -142,8 +141,11 @@ public class CNLValidatorListener extends CNLBaseListener {
             }
         }
         for(String chave:controle.keySet())
-            if(controle.get(chave)>1)
-                validationMessages.add("\t- Par repetido: "+chave+"\n");
+            if(controle.get(chave)>1) {
+                validationMessages.add("\t- Par repetido: " + chave + "\n");
+                retorno = ObjectType.INVALIDO;
+                return retorno;
+            }
         isPaciente = controle.keySet().contains("nome")
                 && controle.keySet().contains("cpf")
                 && controle.keySet().contains("nascimento");
@@ -183,7 +185,7 @@ public class CNLValidatorListener extends CNLBaseListener {
         if(subtype == ObjectType.INVALIDO) {
             String retorno = getErrorLine(ctx, "Objeto inválido!");
             for(String message:validationMessages)
-                retorno +=validationMessages;
+                retorno +=message;
             errors.add(retorno);
         }
     }
