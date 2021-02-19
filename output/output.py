@@ -63,6 +63,5 @@ sintomList = [{"tipo" : "FEBRE"
 }]
 cnl.checkAndAddList(paciente,"sintomas")
 paciente["sintomas"].extend(sintomList)
-cnl.imprimir(paciente)
-cnl.diagnosticar(paciente,"2020-12-15 10:30:22")
+cnl.diagnosticar(paciente)
 
